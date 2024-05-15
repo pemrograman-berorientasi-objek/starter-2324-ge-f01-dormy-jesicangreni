@@ -1,0 +1,28 @@
+2024-05-15 15:21:11 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "CREATE TABLE IF NOT EXISTS Student (Id VARCHAR(30) PRIMARY KEY,Name VARCHAR(255) NOT NULL,Gender TEXT NOT NULL,EntranceYear INTEGER NOT NULL,[*])"; expected "identifier"; SQL statement:
+CREATE TABLE IF NOT EXISTS Student (Id VARCHAR(30) PRIMARY KEY,Name VARCHAR(255) NOT NULL,Gender TEXT NOT NULL,EntranceYear INTEGER NOT NULL,) [42001-212]
+2024-05-15 15:26:41 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "CREATE TABLE IF NOT EXISTS Student (Id VARCHAR(30) PRIMARY KEY,Name VARCHAR(255) NOT NULL,Gender TEXT NOT NULL,EntranceYear INTEGER NOT NULL,[*])"; expected "identifier"; SQL statement:
+CREATE TABLE IF NOT EXISTS Student (Id VARCHAR(30) PRIMARY KEY,Name VARCHAR(255) NOT NULL,Gender TEXT NOT NULL,EntranceYear INTEGER NOT NULL,) [42001-212]
+2024-05-15 15:28:47 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "DORMNAME" not found; SQL statement:
+UPDATE Student SET DormName = ? WHERE Id = ? [42122-212]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:502)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:477)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.table.Table.getColumn(Table.java:754)
+	at org.h2.command.Parser.readTableColumn(Parser.java:1092)
+	at org.h2.command.Parser.readUpdateSetClause(Parser.java:1159)
+	at org.h2.command.Parser.parseUpdate(Parser.java:1128)
+	at org.h2.command.Parser.parsePrepared(Parser.java:858)
+	at org.h2.command.Parser.parse(Parser.java:691)
+	at org.h2.command.Parser.parse(Parser.java:661)
+	at org.h2.command.Parser.prepareCommand(Parser.java:568)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:631)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:554)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1116)
+	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:92)
+	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:288)
+	at pbo.f01.driver.ContactDatabase.assign(ContactDatabase.java:82)
+	at pbo.f01.App.main(App.java:41)
