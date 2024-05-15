@@ -49,6 +49,18 @@ public class ContactDatabase extends AbstractDatabase {
     }
 
     public void addStudent(String Id, String Name, int EntranceYear, String Gender) throws SQLException {
+        // Periksa apakah ID sudah ada
+        String checkSql = "SELECT COUNT(*) FROM Student WHERE Id = ?";
+        PreparedStatement checkStatement = this.getConnection().prepareStatement(checkSql);
+        checkStatement.setString(1, Id);
+        ResultSet resultSet = checkStatement.executeQuery();
+        resultSet.next();
+        if (resultSet.getInt(1) > 0) {
+            checkStatement.close();
+            return; // Jika ID sudah ada, tidak menambahkan mahasiswa baru
+        }
+        checkStatement.close();
+
         String sql = "INSERT INTO Student (Id, Name, EntranceYear, Gender) VALUES (?, ?, ?, ?)";
         PreparedStatement statement = this.getConnection().prepareStatement(sql);
         statement.setString(1, Id);
@@ -70,6 +82,22 @@ public class ContactDatabase extends AbstractDatabase {
     }
 
     public void assign(String Id, String DormName) throws SQLException {
+        // Periksa kapasitas asrama
+        String capacitySql = "SELECT Capacity, (SELECT COUNT(*) FROM Student WHERE DormName = ?) AS Occupied FROM Dorm WHERE Name = ?";
+        PreparedStatement capacityStatement = this.getConnection().prepareStatement(capacitySql);
+        capacityStatement.setString(1, DormName);
+        capacityStatement.setString(2, DormName);
+        ResultSet capacityResultSet = capacityStatement.executeQuery();
+        if (capacityResultSet.next()) {
+            int capacity = capacityResultSet.getInt("Capacity");
+            int occupied = capacityResultSet.getInt("Occupied");
+            if (occupied >= capacity) {
+                capacityStatement.close();
+                return; // Jika kapasitas penuh, tidak menempatkan mahasiswa
+            }
+        }
+        capacityStatement.close();
+
         String sql = "UPDATE Student SET DormName = ? WHERE Id = ?";
         PreparedStatement statement = this.getConnection().prepareStatement(sql);
         statement.setString(1, DormName);
@@ -79,44 +107,38 @@ public class ContactDatabase extends AbstractDatabase {
     }
 
     public void displayAll() throws SQLException {
-        String dormSQL = "SELECT * FROM Dorm ORDER BY Name ASC"; //men-seleksi semua data dari tabel Dorm dan diurutkan berdasarkan nama
-        String studentSQL = "SELECT * FROM Student WHERE DormName = ? ORDER BY Name ASC"; //men-seleksi semua data dari tabel Student yang memiliki DormName tertentu dan diurutkan berdasarkan nama
+        String dormSQL = "SELECT * FROM Dorm ORDER BY Name ASC";
+        String studentSQL = "SELECT * FROM Student WHERE DormName = ? ORDER BY Name ASC";
 
-        //ekskusi query untuk dorm
         Statement dormStatement = this.getConnection().createStatement();
         ResultSet dormResultSet = dormStatement.executeQuery(dormSQL);
 
-        //mengambil data dari tabel Dorm
         while (dormResultSet.next()) {
-            String dormName = dormResultSet.getString("Name"); //mengambil data dari kolom Name
-            String dormGender = dormResultSet.getString("Gender"); //mengambil data dari kolom gender
-            int dormCapacity = dormResultSet.getInt("Capacity"); //mengambil data dari kolom capacity
+            String dormName = dormResultSet.getString("Name");
+            String dormGender = dormResultSet.getString("Gender");
+            int dormCapacity = dormResultSet.getInt("Capacity");
 
-            String dormDetail = dormName + "|" + dormGender + "|" + dormCapacity; //format output
+            String dormDetail = dormName + "|" + dormGender + "|" + dormCapacity;
 
-            //eksekusi query untuk student
             PreparedStatement studentStatement = this.getConnection().prepareStatement(studentSQL);
-            studentStatement.setString(1, dormName); //mengisi parameter query dengan dormName
+            studentStatement.setString(1, dormName);
             ResultSet studentResultSet = studentStatement.executeQuery();
             
-            //mengambil data dari tabel Student
             int studentCount = 0;
             StringBuilder studentDetails = new StringBuilder();
 
-            //mengambil data dari tabel Student
             while (studentResultSet.next()) {
-                String studentId = studentResultSet.getString("Id"); //mengambil data dari kolom Id
-                String studentName = studentResultSet.getString("Name"); //mengambil data dari kolom Name 
-                int entranceYear = studentResultSet.getInt("EntranceYear"); //mengambil data dari kolom EntranceYear
+                String studentId = studentResultSet.getString("Id");
+                String studentName = studentResultSet.getString("Name");
+                int entranceYear = studentResultSet.getInt("EntranceYear");
                 
-                studentDetails.append("\n").append(studentId).append("|").append(studentName).append("|").append(entranceYear); //format output
-                studentCount++; //menghitung jumlah student
+                studentDetails.append("\n").append(studentId).append("|").append(studentName).append("|").append(entranceYear);
+                studentCount++;
             }
 
-            //format output akhir
             dormDetail += "|" + studentCount;
             System.out.println(dormDetail);
-            System.out.println(studentDetails.toString().trim()); //menghapus spasi di akhir
+            System.out.println(studentDetails.toString().trim());
 
             studentStatement.close();
         }
